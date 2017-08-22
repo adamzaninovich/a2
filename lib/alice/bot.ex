@@ -56,6 +56,8 @@ defmodule Alice.Bot do
   @doc "Get the handlers"
   def handlers(bot), do: GenServer.call(bot, :handlers)
 
+  def handler_processes(bot), do: GenServer.call(bot, :handler_processes)
+
   @doc """
   Invokes a user defined `handle_in/2` function, if defined.
 
@@ -63,10 +65,10 @@ defmodule Alice.Bot do
   should be handled by the user module.
 
   Returning `{:dispatch, msg, state}` will dispatch the message
-  to all installed responders.
+  to all installed handlers.
 
   Returning `{:send, {msg, text}, state}` will send the message directly to the
-  adapter without dispatching to any responders.
+  adapter without dispatching to any handlers.
 
   Returning `{:noreply, state}` will ignore the message.
   """
@@ -163,6 +165,16 @@ defmodule Alice.Bot do
 
       def handle_call(:name, _from, %{name: name} = state) do
         {:reply, name, state}
+      end
+      def handle_call(:handler_processes, _from, %{handler_sup: sup} = state) do
+        handler_processes =
+          sup
+          |> Supervisor.which_children()
+          |> Enum.map(fn({_,pid,_,_}) ->
+            {_,[{_,{mod,_,_}}|_]} = Process.info(pid, :dictionary)
+            {mod, pid}
+          end)
+        {:reply, handler_processes, state}
       end
       def handle_call(:handlers, _from, %{handlers: handlers} = state) do
         {:reply, handlers, state}

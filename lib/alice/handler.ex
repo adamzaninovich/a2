@@ -1,17 +1,21 @@
 defmodule Alice.Handler do
   @moduledoc """
-  Lots of information about routes...
+  Lots of information about handlers...
   """
 
   def start_link(module, {name, bot}) do
     GenServer.start_link(module, {name, bot})
   end
 
-  def dispatch(msg, responders) do
-    Enum.map(responders, fn({_, pid, _, _}) ->
+  def dispatch(msg, handlers) do
+    Enum.map(handlers, fn({_, pid, _, _}) ->
       GenServer.cast(pid, {:dispatch, msg})
     end)
   end
+
+  def routes(pid), do: GenServer.call(pid, :routes)
+
+  def commands(pid), do: GenServer.call(pid, :commands)
 
   defmacro route(regex, name) do
     quote do
@@ -57,13 +61,24 @@ defmodule Alice.Handler do
         {:ok, %{
           name: name,
           opts: :not_implemented,
+          patterns: [],
           routes: [],
+          commands: [],
           bot: bot
         }}
       end
 
+      def handle_call(:routes, _from, %{routes: routes} = state) do
+        {:reply, routes, state}
+      end
+      def handle_call(:commands, _from, %{commands: commands} = state) do
+        {:reply, commands, state}
+      end
+
       def handle_cast(:compile_commands, %{name: name} = state) do
-        {:noreply, %{state | routes: compile_commands(name)}}
+        {:noreply, %{state | patterns: compile_commands(name),
+                             routes: @routes,
+                             commands: @commands}}
       end
       def handle_cast({:dispatch, msg}, state) do
         {:noreply, dispatch_routes(msg, state)}
@@ -78,8 +93,8 @@ defmodule Alice.Handler do
         List.flatten([commands, @routes])
       end
 
-      defp dispatch_routes(msg, %{routes: routes} = state) do
-        Enum.reduce(routes, state, fn(route, new_state) ->
+      defp dispatch_routes(msg, %{patterns: patterns} = state) do
+        Enum.reduce(patterns, state, fn(route, new_state) ->
           case dispatch_route(route, msg, new_state) do
             :ok -> new_state
             {:ok, new_state} -> new_state
@@ -108,7 +123,6 @@ defmodule Alice.Handler do
           _ -> Regex.named_captures(regex, text)
         end
       end
-
     end
   end
 end

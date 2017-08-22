@@ -2,7 +2,7 @@ defmodule Alice.Adapters.Console do
   @moduledoc """
   Alice Console Adapter
 
-  The console adapter is useful for trying out responders without a remote
+  The console adapter is useful for trying out handlers without a remote
   chat service.
 
       config :my_app, MyApp.Bot,

@@ -15,6 +15,7 @@ defmodule Alice.Adapters.NoOp do
 
   @doc false
   def init({bot, _opts}) do
+    Kernel.send(self(), :connected)
     {:ok, bot}
   end
 
