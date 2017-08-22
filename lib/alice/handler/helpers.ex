@@ -14,7 +14,7 @@ defmodule Alice.Handler.Helpers do
     random_reply(msg, resp)
   end
   def reply(%Msg{bot: bot} = msg, resp) do
-    Alice.Bot.send(bot, %{msg | text: uncache_images(resp)})
+    Alice.Bot.reply(bot, %{msg | text: uncache_images(resp)})
   end
 
   @doc """

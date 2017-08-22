@@ -20,7 +20,7 @@ defmodule Alice.Adapters.NoOp do
   end
 
   @doc false
-  def handle_cast({:send, _msg}, bot) do
+  def handle_cast({:reply, _msg}, bot) do
     {:noreply, bot}
   end
 

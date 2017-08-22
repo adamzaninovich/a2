@@ -24,7 +24,7 @@ defmodule Alice.Adapters.Console do
   end
 
   @doc false
-  def handle_cast({:send, msg}, %{conn: conn} = state) do
+  def handle_cast({:reply, msg}, %{conn: conn} = state) do
     Kernel.send(conn, {:reply, msg})
     {:noreply, state}
   end

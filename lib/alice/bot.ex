@@ -48,7 +48,7 @@ defmodule Alice.Bot do
   end
 
   @doc "Send a message"
-  def send(bot, msg), do: GenServer.cast(bot, {:send, msg})
+  def reply(bot, msg), do: GenServer.cast(bot, {:reply, msg})
 
   @doc "Get the name of the bot"
   def name(bot), do: GenServer.call(bot, :name)
@@ -67,7 +67,7 @@ defmodule Alice.Bot do
   Returning `{:dispatch, msg, state}` will dispatch the message
   to all installed handlers.
 
-  Returning `{:send, {msg, text}, state}` will send the message directly to the
+  Returning `{:reply, {msg, text}, state}` will reply the message directly to the
   adapter without dispatching to any handlers.
 
   Returning `{:noreply, state}` will ignore the message.
@@ -193,8 +193,8 @@ defmodule Alice.Bot do
         end
       end
 
-      def handle_cast({:send, msg}, %{adapter: adapter} = state) do
-        @adapter.send(adapter, msg)
+      def handle_cast({:reply, msg}, %{adapter: adapter} = state) do
+        @adapter.reply(adapter, msg)
         {:noreply, state}
       end
       def handle_cast({:handle_in, msg}, state) do
@@ -208,7 +208,7 @@ defmodule Alice.Bot do
             log_incorrect_return(:dispatch)
             {:noreply, state}
 
-          {:send, {%Alice.Message{} = msg, text}, state} ->
+          {:reply, {%Alice.Message{} = msg, text}, state} ->
             Alice.Handler.Helpers.reply(msg, text)
             {:noreply, state}
 

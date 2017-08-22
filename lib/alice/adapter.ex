@@ -12,7 +12,7 @@ defmodule Alice.Adapter do
   @type opts  :: any
   @type msg   :: Alice.Message.t
 
-  @callback send(bot, msg) :: term
+  @callback reply(bot, msg) :: term
 
   @doc false
   def start_link(module, opts) do
@@ -22,13 +22,11 @@ defmodule Alice.Adapter do
   @doc false
   defmacro __using__(_opts) do
     quote do
-      import Kernel, except: [send: 2]
-
-      @behaviour Alice.Adapter
       use GenServer
+      @behaviour Alice.Adapter
 
-      def send(bot, %Alice.Message{} = msg) do
-        GenServer.cast(bot, {:send, msg})
+      def reply(bot, %Alice.Message{} = msg) do
+        GenServer.cast(bot, {:reply, msg})
       end
 
       @doc false
@@ -53,7 +51,7 @@ defmodule Alice.Adapter do
         :ok
       end
 
-      defoverridable [__before_compile__: 1, send: 2]
+      defoverridable [__before_compile__: 1, reply: 2]
     end
   end
 end
