@@ -3,6 +3,13 @@ defmodule Alice.Handler do
   Lots of information about handlers...
   """
 
+  def builtins() do
+    [
+      Alice.Handlers.Help,
+      Alice.Handlers.Utils
+    ]
+  end
+
   def start_link(module, {name, bot}) do
     GenServer.start_link(module, {name, bot})
   end

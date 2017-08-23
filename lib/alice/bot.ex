@@ -27,7 +27,7 @@ defmodule Alice.Bot do
   """
 
   defstruct adapter: nil,
-            name: "alice",
+            name: nil,
             handlers: [],
             handler_sup: [],
             opts: []
@@ -108,7 +108,7 @@ defmodule Alice.Bot do
       @adapter config.adapter
       @before_compile config.adapter
       @config config.bot_config
-      @log_level config.bot_config[:log_level] || :debug
+      @log_level config.bot_config[:log_level]
       @otp_app config.otp_app
 
       def start_link(opts \\ []) do
@@ -117,8 +117,16 @@ defmodule Alice.Bot do
 
       def stop(bot), do: Alice.stop_bot(bot)
 
-      def config(opts \\ []) do
-        Alice.Bot.Config.config(__MODULE__, @otp_app, opts)
+      def get_config do
+        @config
+      end
+
+      def get_config(key) do
+        Keyword.get(get_config(), key, :not_found)
+      end
+
+      def bot_config(opts) do
+        Alice.Bot.Config.get_bot_config(__MODULE__, @otp_app, opts)
       end
 
       def log(msg) do
@@ -127,9 +135,9 @@ defmodule Alice.Bot do
 
       def __adapter__, do: @adapter
 
-      def init({bot, opts}) do
-        with {handlers, opts}   <- register_handlers(bot.config(opts)),
-             {:ok, adapter}     <- @adapter.start_link(bot, opts),
+      def init({bot_module, opts}) do
+        with {handlers, opts}   <- register_handlers(bot_module.bot_config(opts)),
+             {:ok, adapter}     <- @adapter.start_link(bot_module, opts),
              {:ok, handler_sup} <- Alice.Handler.Supervisor.start_link(),
              name               <- opts[:name],
              bot                <- Alice.Bot.new(adapter, name, handlers, handler_sup, opts) do
@@ -139,13 +147,10 @@ defmodule Alice.Bot do
         end
       end
 
-      defp register_handlers({:no_handlers, opts}), do: {[], opts}
-      defp register_handlers({handlers, opts}) do
+      defp register_handlers(opts) do
+        {handlers, opts} = Keyword.pop(opts, :handlers, [])
         GenServer.cast(self(), {:register_handlers, handlers})
         {handlers, opts}
-      end
-      defp register_handlers(opts) do
-        register_handlers(Keyword.pop(opts, :handlers, :no_handlers))
       end
 
       def handle_connect(state) do
@@ -220,10 +225,21 @@ defmodule Alice.Bot do
         end
       end
       def handle_cast({:register_handlers, handlers}, %{name: name, handler_sup: sup} = state) do
+        handlers = ensure_builtin_handlers(handlers)
         Enum.each(handlers, fn(handler) ->
           Supervisor.start_child(sup, [handler, {name, self()}])
         end)
-        {:noreply, state}
+        {:noreply, %{state | handlers: handlers}}
+      end
+
+      defp ensure_builtin_handlers(handlers) when is_list(handlers) do
+        Enum.reduce(Alice.Handler.builtins(), handlers, fn(builtin, acc) ->
+          if builtin in acc do
+            acc
+          else
+            [builtin | acc]
+          end
+        end)
       end
 
       def handle_info(msg, state), do: {:noreply, state}
