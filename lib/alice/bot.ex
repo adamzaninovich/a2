@@ -56,6 +56,7 @@ defmodule Alice.Bot do
   @doc "Get the handlers"
   def handlers(bot), do: GenServer.call(bot, :handlers)
 
+  @doc "Get the handler pids"
   def handler_processes(bot), do: GenServer.call(bot, :handler_processes)
 
   @doc """
@@ -126,7 +127,7 @@ defmodule Alice.Bot do
       end
 
       def bot_config(opts) do
-        Alice.Bot.Config.get_bot_config(__MODULE__, @otp_app, opts)
+        Alice.Bot.Config.get_bot_config!(__MODULE__, @otp_app, opts)
       end
 
       def log(msg) do

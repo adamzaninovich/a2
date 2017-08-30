@@ -10,7 +10,7 @@ defmodule Alice.Mixfile do
       deps: deps(),
       package: package(),
       name: "Alice",
-      # elixirc_paths: elixirc_paths(Mix.env),
+      elixirc_paths: elixirc_paths(Mix.env),
       description: "An elixir chat bot framework (now with adapters)",
       source_url: "https://github.com/alice-bot/alice",
       homepage_url: "https://github.com/alice-bot/alice"
@@ -42,8 +42,8 @@ defmodule Alice.Mixfile do
     ]
   end
 
-  # defp elixirc_paths(:test), do: ["lib", "test/support"]
-  # defp elixirc_paths(_), do: ["lib"]
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   defp package do
     [
