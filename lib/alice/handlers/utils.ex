@@ -22,7 +22,8 @@ defmodule Alice.Handlers.Utils do
 
   @doc "`debug msg` - the current `Alice.Message` datastruct for debugging"
   def debug_msg(msg, _state) do
-    reply(msg, format_code(msg))
+    m = Map.put(msg, :private, %{})
+    reply(msg, format_code(m))
   end
 
   @doc "`debug state` - the current `Alice.Adapter` state for debugging"
