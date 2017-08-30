@@ -19,13 +19,13 @@ defmodule Alice.Adapters.Console do
   @doc false
   def init({bot, opts}) do
     {:ok, conn} = Connection.start(opts)
-    Kernel.send(self(), :connected)
+    send(self(), :connected)
     {:ok, %{conn: conn, opts: opts, bot: bot}}
   end
 
   @doc false
   def handle_cast({:reply, msg}, %{conn: conn} = state) do
-    Kernel.send(conn, {:reply, msg})
+    send(conn, {:reply, msg})
     {:noreply, state}
   end
 

@@ -38,7 +38,8 @@ defmodule Alice.Mixfile do
   defp deps do
     [
       # {:excoveralls, "~> 0.7", only: :test},
-      {:ex_doc, ">= 0.0.0", only: :dev}
+      {:ex_doc, ">= 0.0.0", only: :dev},
+      {:slack, "~> 0.12.0"}
     ]
   end
 
