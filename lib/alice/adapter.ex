@@ -3,7 +3,7 @@ defmodule Alice.Adapter do
   Alice Adapter Behaviour
 
   An Adapter is the interface to the service your bot runs on. To implement an
-  adapter you will need to translate messages from the service to the 
+  adapter you will need to translate messages from the service to the
   `Alice.Message` struct and call `Alice.Bot.handle_message(bot, msg)`.
   """
 
