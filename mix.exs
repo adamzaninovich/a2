@@ -13,13 +13,13 @@ defmodule Alice.Mixfile do
       elixirc_paths: elixirc_paths(Mix.env),
       description: "An elixir chat bot framework (now with adapters)",
       source_url: "https://github.com/alice-bot/alice",
-      homepage_url: "https://github.com/alice-bot/alice"
-      # test_coverage: [tool: ExCoveralls],
-      # preferred_cli_env: [
-      #  "coveralls": :test,
-      #  "coveralls.html": :test,
-      #  "coveralls.detail": :test,
-      #  "coveralls.post": :test]
+      homepage_url: "https://github.com/alice-bot/alice",
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+       "coveralls": :test,
+       "coveralls.html": :test,
+       "coveralls.detail": :test,
+       "coveralls.post": :test]
     ]
   end
 
@@ -37,7 +37,7 @@ defmodule Alice.Mixfile do
 
   defp deps do
     [
-      # {:excoveralls, "~> 0.7", only: :test},
+      {:excoveralls, "~> 0.7", only: :test},
       {:ex_doc, ">= 0.0.0", only: :dev}
     ]
   end
